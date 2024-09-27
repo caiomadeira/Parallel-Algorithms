@@ -35,6 +35,17 @@ typedef struct {
 int lengthofvector(int * v) { return sizeof(v) / sizeof(v[0]); }
 int sizeofmatrix(Matrix* m) { return m->order->m * m->order->n; }
 
+int * randvalues(int n)
+{
+    int * v = (int *)malloc(n*sizeof(int));
+    if (v != NULL)
+    {
+        for(int i = 0; i < n; i++)
+            v[i] = rand() % (n + 1);
+    }
+    return v;
+}
+
 Matrix * createMatrix(int m, int n, char name, int * values)
 {
     Matrix * mat = (Matrix*)malloc(sizeof(Matrix));
@@ -129,19 +140,38 @@ int * product(Matrix * a, int * b)
     }
 }
 
-int main(void)
-{
-    int a_values[] = {3, 2, 1, 4, 8, 6, 1, 3, 4};
-    int b[] = {2, 5, 4};
+int squareorder(int total) 
+{ 
+    int i;
+    for(i = 1; i < total; i++)
+    {
+        if (total % i == 0 && i != 1)
+            return total / i;
+    } 
+}
 
-    Matrix* a = createMatrix(3, 3, 'A', a_values);
+int main(int argc, char * argv[])
+{
+
+    // int qtvalues = atoi(argv[1]);
+    // int * v = randvalues(qtvalues);
+    // int m = squareorder(qtvalues);
+    // int n = m;
+    int total = 324;
+    int * v = randvalues(total);
+    int m = 18;
+    int n = 18;
+    printf("Order of square matrix: %dx%d\n", m, m);
+
+    Matrix* a = createMatrix(m, n, 'A', v);
     printmatrix(a);
+
+    int * b = randvalues(m);
     
     printvector(b, 'B', "vertical");
     int * y = product(a, b);
 
     printvector(y, 'Y', "vertical");
-
 
     return 0;
 }
