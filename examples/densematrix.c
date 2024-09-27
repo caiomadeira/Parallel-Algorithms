@@ -1,5 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<ctype.h>
+#include<string.h>
 
 #define RRAND_MAX 9
 
@@ -27,10 +29,13 @@ typedef struct {
 typedef struct {
     int **i;
     Order * order;
+    char name;
 } Matrix;
 
+int lengthofvector(int * v) { return sizeof(v) / sizeof(v[0]); }
+int sizeofmatrix(Matrix* m) { return m->order->m * m->order->n; }
 
-Matrix * createMatrix(int m, int n, int * values)
+Matrix * createMatrix(int m, int n, char name, int * values)
 {
     Matrix * mat = (Matrix*)malloc(sizeof(Matrix));
     if (mat != NULL)
@@ -40,8 +45,9 @@ Matrix * createMatrix(int m, int n, int * values)
         {
             mat->order->m = m;
             mat->order->n = n;
+            mat->name = toupper(name);
             
-            mat->i = (int**)malloc(m*sizeof(int));
+            mat->i = (int**)malloc(m*sizeof(int*));
             if (mat->i != NULL)
             {
                 for(int i = 0; i < m; i++)
@@ -51,7 +57,7 @@ Matrix * createMatrix(int m, int n, int * values)
                     {
                         for(int j = 0; j < n; j++)
                         {
-                            mat->i[i][j] = values[j];
+                            mat->i[i][j] = values[i * n + j];
                         }
                     }
                 }
@@ -64,22 +70,78 @@ Matrix * createMatrix(int m, int n, int * values)
 
 void printmatrix(Matrix* m)
 {
-    for(int i = 0; i < m->order->m; i++)
+    if (m != NULL)
     {
-        for(int j = 0; j < m->order->n; j++)
+        printf("\n");
+        printf("Matrix %c\n", m->name);
+        for(int i = 0; i < m->order->m; i++)
         {
-            printf("%d ", m->i[i][j]);
+            for(int j = 0; j < m->order->n; j++)
+            {
+                printf("%d ", m->i[i][j]);
+            }
+            printf("\n");
+        }
+    } else { printf("matrix is null. Coudn't print the matrix.\n"); }
+}
+
+void printvector(int * v, char name, const char * format)
+{
+    if (v != NULL)
+    {
+        printf("\n");
+        printf("Vector %c\n", name);
+        for(int i = 0; i < lengthofvector(v) + 1; i++)
+        {
+            if (strcmp(format, "vertical"))
+                printf("%d ", v[i]);
+            else if (strcmp(format, "horizontal"))
+                printf("%d\n", v[i]);
+            else
+                printf("You must choose a print format.\n");
         }
         printf("\n");
     }
 }
 
+int * product(Matrix * a, int * b)
+{
+    int k = 1;
+    int b_length = lengthofvector(b) + 1;
+    if (b_length == a->order->m)
+    {
+        int * y = (int*)malloc(a->order->m*sizeof(int));
+        if (y == NULL) exit(-2);
+
+        for(int i = 0; i < a->order->m; i++)
+        {
+            for(int j = 0; j < a->order->n; j++)
+            {
+                if (i != i - 1)
+                {
+                    y[i] += (a->i[i][j] * b[j]);
+                    printf("y[%d] = (%d * %d) = %d\n", i, a->i[i][j], b[j], y[i]);
+                    k++;
+                }
+            }
+        }
+        return y;
+    }
+}
+
 int main(void)
 {
-    int v[] = {3, 2, 1, 4, 8, 6, 1, 3, 4};
+    int a_values[] = {3, 2, 1, 4, 8, 6, 1, 3, 4};
+    int b[] = {2, 5, 4};
 
-    Matrix* matrix = createMatrix(3, 3, v);
-    printmatrix(matrix);
+    Matrix* a = createMatrix(3, 3, 'A', a_values);
+    printmatrix(a);
+    
+    printvector(b, 'B', "vertical");
+    int * y = product(a, b);
+
+    printvector(y, 'Y', "vertical");
+
 
     return 0;
 }
