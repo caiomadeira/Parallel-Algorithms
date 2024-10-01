@@ -14,7 +14,7 @@ static int * randvalues(int n)
 
 int main(int argc, char * argv[])
 {
-    printf("Sparse Matrix-Vector MUltiplication - Introduction to Parallel Computing, 2th Edition.\n");
+    printf("Sparse Matrix-Vector Multiplication - Introduction to Parallel Computing, 2th Edition.\n");
     
     if (argc == 2)
     {
