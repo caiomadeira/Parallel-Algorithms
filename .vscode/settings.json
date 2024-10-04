@@ -2,6 +2,7 @@
     "files.associations": {
         "random": "c",
         "math.h": "c",
-        "matrix.h": "c"
+        "matrix.h": "c",
+        "chrono": "cpp"
     }
 }

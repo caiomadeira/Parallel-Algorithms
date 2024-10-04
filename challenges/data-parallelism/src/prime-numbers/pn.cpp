@@ -43,17 +43,25 @@
 
 #include <omp.h>
 
+extern "C" {
+	#include<stdlib.h>
+	#include<stdio.h>
+
+	#define TRUE 1
+	#define FALSE 0
+}
+
 int prime_number(int n){
 	int t = 0;
 	for (int i = 2; i <= n; i++){
-		int p = 1;
+		int isprime = TRUE;
 		for (int j = 2; j < i; j++){
 			if (i % j == 0){
-				p = 0;
+				isprime = FALSE;
 				break;
 			}
 		}
-		t += p;
+		t += isprime;
 	}
 	return t;
 }
@@ -61,6 +69,7 @@ int prime_number(int n){
 int main(int argc, char const *argv[])
 {
 	int n = atoi(argv[1]);
+	std::cout.unsetf(std::ios::scientific);
 	auto tstart = std::chrono::high_resolution_clock::now();
 	volatile int result = prime_number(n);
 	auto tend = std::chrono::high_resolution_clock::now();
@@ -68,6 +77,8 @@ int main(int argc, char const *argv[])
 	double TT = std::chrono::duration<double>(tend - tstart).count();
 	// Throughput -> numbers processed per second
     double TR = ((double)(n)) / TT;
-	std::cout << "1\t" << TT << "\t" << TR << std::endl;
+	std::cout << "\nTempo de execução em segundos: " << TT << "\n" << "N de números processados por segundo: " << TR << std::endl;
+	printf("Tempo de execução (s): %-f\n", TT);
+	printf("N de números processados (por s): %f\n", TR);
 	return 0;
 }
