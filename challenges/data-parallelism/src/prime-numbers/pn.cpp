@@ -56,7 +56,7 @@ int prime_number(int n){
 	for (int i = 2; i <= n; i++){
 		int isprime = TRUE;
 		for (int j = 2; j < i; j++){
-			if (i % j == 0){
+			if (i % j == 0) {
 				isprime = FALSE;
 				break;
 			}
@@ -82,3 +82,7 @@ int main(int argc, char const *argv[])
 	printf("N de números processados (por s): %f\n", TR);
 	return 0;
 }
+
+
+Diz-se que um programa é sequencialmente equivalente quando ele produz os mesmos1 resultados, seja executado usando um thread ou muitos threads. Um programa sequencialmente equivalente é mais fácil de manter e, na maioria dos casos, muito mais fácil de entender (e, portanto, escrever).
+1 Os resultados podem diferir ligeiramente devido à não associatividade das operações de ponto flutuante.

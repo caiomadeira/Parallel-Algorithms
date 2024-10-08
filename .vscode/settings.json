@@ -3,6 +3,7 @@
         "random": "c",
         "math.h": "c",
         "matrix.h": "c",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "cmath": "cpp"
     }
 }
