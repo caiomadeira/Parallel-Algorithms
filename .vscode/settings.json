@@ -4,6 +4,7 @@
         "math.h": "c",
         "matrix.h": "c",
         "chrono": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "functional": "cpp"
     }
 }

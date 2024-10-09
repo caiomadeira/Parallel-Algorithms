@@ -1,0 +1,6 @@
+# 09-10-24 - reunião
+
+- Estudo de Interpretadores e Compiladores - ok
+- Atualmente estou fazendo exercicios do repositorio do GMAP 
+sobre paralelismo de dados em quanto leio o livro 'padrões para programação paralela'
+atualmente estou lendo o apendice sobre OpenMP;
