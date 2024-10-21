@@ -46,23 +46,42 @@
 extern "C" {
 	#include<stdlib.h>
 	#include<stdio.h>
+	#include<string.h>
 
 	#define TRUE 1
 	#define FALSE 0
 }
 
-int prime_number(int n){
+int prime_number_p(int n){
+
 	int t = 0;
-	for (int i = 2; i <= n; i++){
-		int isprime = TRUE;
-		for (int j = 2; j < i; j++){
-			if (i % j == 0) {
-				isprime = FALSE;
-				break;
+	#pragma omp parallel for reduction(+:t) schedule(dynamic)
+		for (int i = 2; i <= n; i++){
+			int isprime = TRUE;
+			for (int j = 2; j < i; j++){
+				if (i % j == 0) {
+					isprime = FALSE;
+					break;
+				}
 			}
+			t += isprime;
 		}
-		t += isprime;
-	}
+	return t;
+}
+
+int prime_number(int n){
+
+	int t = 0;
+		for (int i = 2; i <= n; i++){
+			int isprime = TRUE;
+			for (int j = 2; j < i; j++){
+				if (i % j == 0) {
+					isprime = FALSE;
+					break;
+				}
+			}
+			t += isprime;
+		}
 	return t;
 }
 
@@ -71,7 +90,16 @@ int main(int argc, char const *argv[])
 	int n = atoi(argv[1]);
 	std::cout.unsetf(std::ios::scientific);
 	auto tstart = std::chrono::high_resolution_clock::now();
-	volatile int result = prime_number(n);
+
+	if (strcmp(argv[2], "sequential")) {
+		printf("Pn parallel:\n");
+		volatile int result = prime_number_p(n);
+	}
+	else if (strcmp(argv[2], "parallel")){
+		printf("Pn sequential:\n");		
+		volatile int result = prime_number(n);
+	} else { exit(2);}
+
 	auto tend = std::chrono::high_resolution_clock::now();
     // Execution time
 	double TT = std::chrono::duration<double>(tend - tstart).count();
@@ -84,5 +112,5 @@ int main(int argc, char const *argv[])
 }
 
 
-Diz-se que um programa é sequencialmente equivalente quando ele produz os mesmos1 resultados, seja executado usando um thread ou muitos threads. Um programa sequencialmente equivalente é mais fácil de manter e, na maioria dos casos, muito mais fácil de entender (e, portanto, escrever).
-1 Os resultados podem diferir ligeiramente devido à não associatividade das operações de ponto flutuante.
+//Diz-se que um programa é sequencialmente equivalente quando ele produz os mesmos1 resultados, seja executado usando um thread ou muitos threads. Um programa sequencialmente equivalente é mais fácil de manter e, na maioria dos casos, muito mais fácil de entender (e, portanto, escrever).
+//1 Os resultados podem diferir ligeiramente devido à não associatividade das operações de ponto flutuante.

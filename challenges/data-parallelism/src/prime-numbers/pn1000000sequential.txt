@@ -1,0 +1,6 @@
+Pn sequential:
+
+Tempo de execução em segundos: 162.611
+N de números processados por segundo: 6149.66
+Tempo de execução (s): 162.610557
+N de números processados (por s): 6149.662216

@@ -1,0 +1,6 @@
+Pn parallel:
+
+Tempo de execução em segundos: 41.0945
+N de números processados por segundo: 24334.1
+Tempo de execução (s): 41.094530
+N de números processados (por s): 24334.138893
