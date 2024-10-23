@@ -1,0 +1,3 @@
+render execution time: 42.792736
+write_bmp execution time: 0.160633
+Total program execution time: 42.955370 

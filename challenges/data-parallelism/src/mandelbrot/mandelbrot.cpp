@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <iostream>
+#include <omp.h>
 
 struct BMPHeader {
     char bfType[2]; /* "BM" */
@@ -25,6 +26,20 @@ struct BMPHeader {
     int biClrImportant; /* Number of important colors. If 0, all colors are important */
 };
 
+double timestamp(){
+    struct timeval tempoValor;
+    gettimeofday(&tempoValor, 0);
+    return tempoValor.tv_sec + (tempoValor.tv_usec / 1e6);
+}
+
+static char* newStrncpy(char * dest, const char *src, size_t n)
+{
+    char *ptr = dest;
+    while (n && *src) { *ptr++ = *dest++; --n; }
+    while(n) { *ptr = '\0'; --n; }
+    return dest;
+}
+
 int write_bmp(const char *filename, int width, int height, char *rgb)
 {
     int i, j, ipos;
@@ -37,6 +52,8 @@ int write_bmp(const char *filename, int width, int height, char *rgb)
     bytesPerLine = (3 * (width + 1) / 4) * 4;
 
     strncpy(bmph.bfType, "BM", 2);
+    //newStrncpy(bmph.bfType, "BM", 2);
+
     bmph.bfOffBits = 54;
     bmph.bfSize = bmph.bfOffBits + bytesPerLine * height;
     bmph.bfReserved = 0;
@@ -93,37 +110,40 @@ int write_bmp(const char *filename, int width, int height, char *rgb)
 }
 
 void render(char *out, int width, int height) {
-  int x,y;
-  for(x=0;x<width;x++) {
-  	for(y=0;y<height; y++) {		
-  		int index = 3*width*y + x*3;
-  		float x_origin = ((float) x/width)*3.25 - 2;
-  		float y_origin = ((float) y/width)*2.5 - 1.25;
+  int x, y, index, iteration, max_iteration;
+  float x_origin, y_origin, xi, yi;
 
-  		float xi = 0.0;
-  		float yi = 0.0;
+    #pragma omp parallel for private(xi, yi, index, iteration, x_origin, y_origin) schedule(dynamic)
+        for(int x = 0; x < width; x++) {
+            for(int y = 0; y < height; y++) {		
+                index = 3*width*y + x*3;
+                x_origin = ((float) x/width)*3.25 - 2;
+                y_origin = ((float) y/width)*2.5 - 1.25;
 
-  		int iteration = 0;
-  		int max_iteration = 5000;
+                xi = 0.0;
+                yi = 0.0;
 
-  		while(xi*xi + yi*yi <= 4 && iteration < max_iteration) {
-  			float xtemp = xi*xi - yi*yi + x_origin;
-  			yi = 2*xi*yi + y_origin;
-  			xi = xtemp;
-  			iteration++;
-  		}
+                iteration = 0;
+                max_iteration = 5000;
 
-  		if(iteration == max_iteration) {
-            out[index] = 0;
-            out[index + 1] = 0;
-            out[index + 2] = 0;
-  		} else {
-            out[index] = iteration;
-            out[index + 1] = iteration;
-            out[index + 2] = iteration;
-  		}
-  	}
-  }
+                while(xi*xi + yi*yi <= 4 && iteration < max_iteration) {
+                    float xtemp = xi*xi - yi*yi + x_origin;
+                    yi = 2*xi*yi + y_origin;
+                    xi = xtemp;
+                    iteration++;
+                }
+
+                if(iteration == max_iteration) {
+                    out[index] = 0;
+                    out[index + 1] = 0;
+                    out[index + 2] = 0;
+                } else {
+                    out[index] = iteration;
+                    out[index + 1] = iteration;
+                    out[index + 2] = iteration;
+                }
+            }
+        }
 }
 
 void run(int width, int height) {
@@ -131,17 +151,17 @@ void run(int width, int height) {
 	size_t buffer_size = sizeof(char) * width * height * 3;
 	char *host_image = (char *) malloc(buffer_size);
   
+    double tinit = timestamp();
 	render(host_image, width, height);
+    double tend = timestamp();
+    printf("render execution time: %lf\n", tend-tinit);
   
+  	tinit = timestamp();
 	write_bmp("output.bmp", width, height, host_image);
+    tend = timestamp();
+    printf("write_bmp execution time: %lf\n", tend-tinit);
   
 	free(host_image);
-}
-
-double timestamp(){
-    struct timeval tempoValor;
-    gettimeofday(&tempoValor, 0);
-    return tempoValor.tv_sec + (tempoValor.tv_usec / 1e6);
 }
 
 int main(int argc, char const * argv[]) {
@@ -156,7 +176,7 @@ int main(int argc, char const * argv[]) {
 	run(dim_x, dim_y);
 	double tend = timestamp();
 
-	printf("Execution time: %lf \n", tend-tinit);
+	printf("Total program execution time: %lf \n", tend-tinit);
 
 	return 0;
 }
